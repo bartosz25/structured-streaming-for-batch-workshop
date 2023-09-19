@@ -8,6 +8,7 @@ Implement 2 pipelines, one with SQL API and another with programmatic API (Pytho
 
 <details>
 	<summary>Hints</summary>
+
 	### Data source definition
 	```
 	spark.readStream.format("kafka").option("", "")
