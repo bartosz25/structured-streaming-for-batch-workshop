@@ -13,6 +13,14 @@ Connection parameters for Apache Kafka data source:
 
 ## Setup instructions
 
+1. Start the Kafka broker:
+```
+cd part02/docker
+docker-compose down --volumes; docker-compose up
+```
+2. Open the Scala or Python part in the IDE of your choice.
+3. Implement the jobs.
+
 <details>
 	<summary>Hints</summary>
 
@@ -42,17 +50,33 @@ Connection parameters for Apache Kafka data source:
 	```
 </details>
 
+4. Run the data generator: (`DataGenerator` in Scala, `data_generator.py` in Python).
+
+5. Run the SQL job.
+
+6. Stop the SQL job and run the Scala implementation.
+
 # Exercise 2: Spark UI
 
-Keep the previous pipeline running. Open the Spark UI at localhost:4040 and answer the following questions:
+Keep the previous pipeline running. Open the Spark UI at (http://localhost:4040)[http://localhost:4040].
 
 1. Where to find the information about the batch duration and data processing rate?
 2. Stop the job and modify the trigger to `.trigger(Trigger.ProcessingTime("1 minute"))` TODO: find for Python.
 3. Restart the job and open the Spark UI in the new tab or window. Compare the batch duration and data processing rate.
 4. Do you see any difference?
 
-TODO: answers!!!!!
 
+<details>
+	<summary>Answers</summary>
+
+	### Question 1.
+	
+	
+	### Question 4.
+	
+	
+	```
+</details>
 # Exercise 3: the streaming dataset with a Master Dataset enrichment
 
 Enrich the job created before with a Master Dataset stored as JSON files under `/tmp/wfc/workshop/master/` directory. 
@@ -63,6 +87,8 @@ The keys responsible for the join are respectively:
 * `nr` for the Master Dataset
 
 The enrichment process should keep the rows without the matches in the Master Dataset.
+
+Besides, you can reduce the processing time trigger to `30 seconds`.
 
 ## Setup instructions
 1. Run the following command:
