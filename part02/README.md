@@ -104,6 +104,19 @@ The enrichment process should keep the rows when they don't have matching values
 
 Besides, you can reduce the processing time trigger to `30 seconds` so that the join happens more often.
 
+<details>
+<summary>Hints - Master Dataset definition</summary>
+
+It's a static dataset, so we use the Spark SQL API here:
+```
+sparkSession.read.schema("nr STRING, label STRING").json("/tmp/wfc/workshop/master")
+```
+
+Remember, for any kind of semi-structured data sources (JSON, CSV), it's important to explicitly define the schema. Otherwise Apache Spark will
+sample the dataset to infer the schema which in the end can be wrong and the operation can be costly (dataset processed twice, for the schema resolution
+and processing logic)
+</details>
+
 ## Setup instructions
 1. Run the following command to prepare the master dataset:
 ```
@@ -140,18 +153,6 @@ echo '{"nr": "3", "label": "THREE"}
 
 *The refresh issue is present only for the raw data sources. Modern table file formats like Delta Lake don't have it.*
 
-<details>
-<summary>Hints - Master Dataset definition</summary>
-
-It's a static dataset, so we use the Spark SQL API here:
-```
-sparkSession.read.schema("nr STRING, label STRING").json("/tmp/wfc/workshop/master")
-```
-
-Remember, for any kind of semi-structured data sources (JSON, CSV), it's important to explicitly define the schema. Otherwise Apache Spark will
-sample the dataset to infer the schema which in the end can be wrong and the operation can be costly (dataset processed twice, for the schema resolution
-and processing logic)
-</details>
 
 # Exercise 4: ScyllaDB sink
 
@@ -159,74 +160,73 @@ Change the sink from the console to ScyllaDB. We assume that we cannot use the S
 
 
 <details>
-	<summary>Hints</summary>
+<summary>Hints - Sink choice</summary>
 
-	### Sink choice
-	
-	There are multiple alternatives:
-	
-	* `foreachPartition` with the ScyllaDB API
-	* `foreach` with a dedicated `ForeachWriter` that implements the open/process/close methods
-	
-	My choice goes to the latter one since the API provides a quite nice pattern for the custom writing:
-	* in the `open` we're going to initialize the connection to the database
-	* in the `process` we're going to either add a record to the buffer or flush the buffer if it's full
-	* in the `close` we're going to flush remaining records from the buffer and close the ScyllaDB connection
-	
-	Example for Scala:
-	```
-	class ScyllaDbWriter extends ForeachWriter[MappedEvent] {
+There are multiple alternatives:
 
-	  private var cqlSession: CqlSession = _
-	  
-	  private val bufferedRows = new mutable.ListBuffer[MappedEvent]()
+* `foreachPartition` with the ScyllaDB API
+* `foreach` with a dedicated `ForeachWriter` that implements the open/process/close methods
 
-	  override def open(partitionId: Long, epochId: Long): Boolean = {
-	    cqlSession = CqlSession.builder()
-	      .withKeyspace("wfc")
-	      .build()
-	    true
-  	  }
+My choice goes to the latter one since the API provides a quite nice pattern for the custom writing:
+* in the `open` we're going to initialize the connection to the database
+* in the `process` we're going to either add a record to the buffer or flush the buffer if it's full
+* in the `close` we're going to flush remaining records from the buffer and close the ScyllaDB connection
+
+Example for Scala:
+```
+class ScyllaDbWriter extends ForeachWriter[MappedEvent] {
+
+  private var cqlSession: CqlSession = _
   
-  	  override def process(visit: MappedEvent): Unit = {
-  	    if (bufferedRows.size == 10) {
-  	      flushBuffer()
-  	    }
-  	    bufferedRows.append(visit)
-  	  }
-  	  
-  	  override def close(errorOrNull: Throwable): Unit = {
-  	      flushBuffer()
-  	      cqlSession.close()
-  	  }	
-	```
-	
-	Example for Python:
-	```
-	TODO:
-	```
-	
-	```
-	
-	### ScyllaDB querying
-	```
-	docker exec -ti docker_scylla_1 cqlsh
-	
-	Connected to  at 192.168.144.2:9042.
-	[cqlsh 5.0.1 | Cassandra 3.0.8 | CQL spec 3.3.1 | Native protocol v4]
-	Use HELP for help.
-	cqlsh> SELECT * FROM wfc.numbers;
+  private val bufferedRows = new mutable.ListBuffer[MappedEvent]()
 
-	 value | decorated_value
-	-------+----------------------------
-	     4 | 2023-09-21 05:41:04.828414
-	     5 | 2023-09-21 05:41:04.828415
-	     1 | 2023-09-21 05:41:04.828411
+  override def open(partitionId: Long, epochId: Long): Boolean = {
+    cqlSession = CqlSession.builder()
+      .withKeyspace("wfc")
+      .build()
+    true
+  }
 
-	(3 rows)
+  override def process(visit: MappedEvent): Unit = {
+    if (bufferedRows.size == 10) {
+      flushBuffer()
+    }
+    bufferedRows.append(visit)
+  }
+  
+  override def close(errorOrNull: Throwable): Unit = {
+      flushBuffer()
+      cqlSession.close()
+  }	
+```
 
-	```
+Example for Python:
+```
+TODO:
+```
+
 </details>
+
+## Setup instructions
+1. Implement the job.
+2. Start the job.
+3. Check the results in the ScyllaDB output table:
+```
+docker exec -ti docker_scylla_1 cqlsh
+
+Connected to  at 192.168.144.2:9042.
+[cqlsh 5.0.1 | Cassandra 3.0.8 | CQL spec 3.3.1 | Native protocol v4]
+Use HELP for help.
+cqlsh> SELECT * FROM wfc.numbers;
+
+ value | decorated_value
+-------+----------------------------
+     4 | 2023-09-21 05:41:04.828414
+     5 | 2023-09-21 05:41:04.828415
+     1 | 2023-09-21 05:41:04.828411
+
+(3 rows)
+```
 
 # Exercise 5: an Apache Kafka and raw files sinks instead
 
