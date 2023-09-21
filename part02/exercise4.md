@@ -99,8 +99,10 @@ class ScyllaDbWriter:
         """
         self.session.execute(insert_query)
         self.rows_to_send = []
+
 ```
 </details>
+
 
 ## Setup instructions
 1. Implement the job.
