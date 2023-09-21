@@ -234,35 +234,37 @@ Replace the ScyllaDB sink by Apache Kafka and JSON sinks. Both should write the 
 
 
 <details>
-	<summary>Hints</summary>
+<summary>Hints - Data sink</summary>
 
-	### Data sink
-	
-	This time we need to change the data sink to `foreachBatch` and define the output definition inside as:
-	
-	```
-	dataset.cache()
-	dataset.write.mode(SaveMode.Overwrite).json(s"/tmp/wfc/workshop/part02/exercise4/${batchNumber}")
-	// Kafka is not only available for the streaming API!
-	dataset.selectExpr("decorated_value AS value").write.options(Map(
-          "kafka.bootstrap.servers" -> "localhost:9094",
-          "topic" -> EnrichedDataTopicName
-	)).format("kafka").save()
-	```
-	
-	Several points here:
+This time we need to change the data sink to `foreachBatch` and define the output definition inside as:
 
-	* the `cache` is mandatory; otherwise the reading part is executed twice, once for each data sink
-	* defining 2 `writeStream...` on the data source won't work well because again, it'll involve reading the data twice
-	* moreover, 2 `writeStream`s bring the risk of reading different data since the data source is not synchronized; it
-	  breaks the requirement from the announcement
-	  
-	### Reading Kafka data
-	```
-	docker exec -ti docker_kafka_1 kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic numbers_enriched --from-beginning
-	```
+```
+dataset.cache()
+dataset.write.mode(SaveMode.Overwrite).json(s"/tmp/wfc/workshop/part02/exercise4/${batchNumber}")
+// Kafka is not only available for the streaming API!
+dataset.selectExpr("decorated_value AS value").write.options(Map(
+  "kafka.bootstrap.servers" -> "localhost:9094",
+  "topic" -> EnrichedDataTopicName
+)).format("kafka").save()
+```
+
+Several points here:
+
+* the `cache` is mandatory; otherwise the reading part is executed twice, once for each data sink
+* defining 2 `writeStream...` on the data source won't work well because again, it'll involve reading the data twice
+* moreover, 2 `writeStream`s bring the risk of reading different data since the data source is not synchronized; it
+  breaks the requirement from the announcement
 </details>
  
+## Setup instructions
+1. Implement the job.
+2. Start the job.
+3. Check the results in the *numbers_enriched* topic:
+```
+docker exec -ti docker_kafka_1 kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic numbers_enriched --from-beginning
+```
+4. Check the results in the output directory
+
 # Exercise 6: fault-tolerance
 
 Go to the checkpoint location and analyze the content:
@@ -270,10 +272,33 @@ Go to the checkpoint location and analyze the content:
 cd /tmp/wfc/workshop/part02/checkpoint/
 
 less commits/*
-less 
+less offsets/*
 ```
 
 Questions:
 
 1. From your understanding, what is the logic behind the fault-tolerance? How the engine knows where to start processing if the job stops.
 2. How to implement a reprocessing scenario from an arbitrary point in the past? What are your ideas?
+
+
+
+<details>
+<summary>Answers - Question 1</summary>
+There is a versioned pair of `commits` and `offsets`. Whenever given micro-batch completes, it writes corresponding versioned files in these 2 directories. 
+When you restart the job, Apache Spark verifies the last written version for both directories and:
+
+* if both have the same number, the job starts in the next offset (N)
+* if offset is higher than the commit, the job starts from the next to last offset (N-1)
+* if commit is higher than offset, well, it can't happen unless you alter the checkpoint location on purpose
+</details>
+
+<details>
+<summary>Answers - Question 2</summary>
+Assuming the checkpoint data is still there - 10 most recent micro-batches are kept by default - you can:
+
+* alter the last offset and rollback it to any point in the past
+* explicitly set the starting timestamp in the job; but it requires changing the checkpoint location which in case of a stateful processing can be problematic
+* remove the checkpoint metadata files you want to reprocess
+ 
+**Before making any operation on the checkpoint location, create a backup**
+</details>
