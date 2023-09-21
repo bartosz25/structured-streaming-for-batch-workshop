@@ -13,7 +13,7 @@ Connection parameters for Apache Kafka data source:
 
 ## Setup instructions
 
-1. Start the Kafka broker:
+1. Start the Kafka broker and the ScyllaDB database we're going to use later:
 ```
 cd part02/docker
 docker-compose down --volumes; docker-compose up
@@ -23,8 +23,8 @@ docker-compose down --volumes; docker-compose up
 docker exec docker_scylla_1 cqlsh -f /data_to_load.txt
 ```
 
-2. Open the Scala or Python part in the IDE of your choice.
-3. Implement the jobs.
+3. Open the Scala or Python part in the IDE of your choice.
+4. Implement the jobs.
 
 <details>
 <summary>Hints - data source definition</summary>
@@ -60,11 +60,11 @@ Scala:
 ```
 </details>
 
-4. Run the data generator: (`DataGenerator` in Scala, `data_generator.py` in Python).
+5. Run the data generator: (`DataGenerator` in Scala, `data_generator.py` in Python).
 
-5. Run the SQL job.
+6. Run the SQL job.
 
-6. Stop the SQL job and run the Scala implementation.
+7. Stop the SQL job and start the Scala implementation.
 
 # Exercise 2: Spark UI
 
@@ -77,20 +77,18 @@ Keep the previous pipeline running. Open the Spark UI at [http://localhost:4040]
 
 
 <details>
-	<summary>Answers</summary>
+<summary>Answers - Question 1</summary>
+Under _Structured Streaming_ where the Streaming query statistics are displayed.
+</details>
 
-	### Question 1.
-	Under _Structured Streaming_ where the Streaming query statistics are displayed.
-	
-	### Question 4.
-	Several aspects here:
-	
-	* more rows are processed at once, the query waits 1 minute and takes more data at once
-	* it doesn't impact the execution time, though; our sink is not data-bounded; we print data which is stored in memory
-	  so there is no I/O impact because of the increased data volume; typically, it won't be the case if you use a I/O-bounded data sink
-	* there is less jobs executed in the Jobs section; it might be easier to follow
-	
-	```
+<details>
+<summary>Answers - Question 4</summary>
+Several aspects here:
+
+* more rows are processed at once, the query waits 1 minute and takes more data at once
+* it doesn't impact the execution time, though; our sink is not data-bounded; we print data which is stored in memory
+  so there is no I/O impact because of the increased data volume; typically, it won't be the case if you use a I/O-bounded data sink
+* there is less jobs executed in the Jobs section; it might be easier to follow
 </details>
 
 # Exercise 3: the streaming dataset with a Master Dataset enrichment
