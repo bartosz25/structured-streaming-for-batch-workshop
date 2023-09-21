@@ -36,4 +36,4 @@ Assuming the checkpoint data is still there - 10 most recent micro-batches are k
 **Before making any operation on the checkpoint location, create a backup**
 </details>
 
-# 🥳 Congrats!
+# 🥳 Congrats! You master now the basics, time to see more advanced concepts!

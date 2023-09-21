@@ -1,0 +1,4 @@
+# TODO: change to 3.5.0 when it's available in pip
+pyspark==3.4.1
+confluent-kafka==2.0.2
+scylla-driver==3.25.11

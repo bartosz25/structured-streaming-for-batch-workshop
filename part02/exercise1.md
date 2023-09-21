@@ -44,8 +44,19 @@ CONCAT_WS(' ', 'Spark', 'SQL')
 
 Python:
 ```
-TODO:
+.foreachBatch(decorate_numbers)
 ```
+with 
+```
+def decorate_numbers(numbers_dataframe: DataFrame, batch_number: int):
+    def decorate_number_rows(rows_to_decorate: Iterable[Row]):
+        for row in rows_to_decorate:
+            yield Row(value=row.value, decorated_value=f'{row.current_timestamp} >>> {row.value}')
+
+    (numbers_dataframe.rdd.mapPartitions(decorate_number_rows).toDF(['value', 'decorated_value'])
+     .show(truncate=False))
+```
+You just discovered the hard way that there are some differences between PySpark and Scala API for Structured Streaming 💪
 
 Scala:
 ```
@@ -67,4 +78,4 @@ Scala:
 7. Stop the SQL job and start the Scala implementation.
 
 # Well done! 
-⏭️ [start the next exercises](exercise2.md)
+⏭️ [start the next exercise](exercise2.md)

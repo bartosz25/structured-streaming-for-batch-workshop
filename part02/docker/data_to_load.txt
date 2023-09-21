@@ -1,0 +1,11 @@
+CREATE KEYSPACE wfc WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor':1 };
+
+USE wfc;
+
+CREATE TABLE numbers (
+value TEXT,
+decorated_value TEXT,
+label TEXT,
+PRIMARY KEY(value));
+
+

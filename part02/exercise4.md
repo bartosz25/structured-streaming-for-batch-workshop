@@ -15,6 +15,11 @@ My choice goes to the latter one since the API provides a quite nice pattern for
 * in the `open` we're going to initialize the connection to the database
 * in the `process` we're going to either add a record to the buffer or flush the buffer if it's full
 * in the `close` we're going to flush remaining records from the buffer and close the ScyllaDB connection
+</details>
+
+
+<details>
+<summary>Hints - Scala ForeachWriter</summary>
 
 Example for Scala:
 ```
@@ -43,12 +48,58 @@ class ScyllaDbWriter extends ForeachWriter[MappedEvent] {
       cqlSession.close()
   }	
 ```
+</details>
 
+<details>
+<summary>Hints - Python ForeachWriter</summary>
 Example for Python:
 ```
-TODO:
-```
+class ScyllaDbWriter:
 
+    def __init__(self):
+        self.session = None
+        self.rows_to_send = None
+        self.epoch_id = None
+
+    def open(self, partition_id, epoch_id):
+        profile = ExecutionProfile(
+            load_balancing_policy=WhiteListRoundRobinPolicy(['127.0.0.1']),
+            retry_policy=DowngradingConsistencyRetryPolicy(),
+            consistency_level=ConsistencyLevel.LOCAL_QUORUM,
+            serial_consistency_level=ConsistencyLevel.LOCAL_SERIAL,
+            request_timeout=15,
+            row_factory=tuple_factory
+        )
+        cluster = Cluster(execution_profiles={EXEC_PROFILE_DEFAULT: profile})
+        self.session = cluster.connect('wfc')
+        self.rows_to_send = []
+        self.epoch_id = epoch_id
+        return True
+
+    def process(self, row):
+        if len(self.rows_to_send) == 10:
+            self._flush_buffer()
+        self.rows_to_send.append(row)
+
+    def close(self, error):
+        self._flush_buffer()
+        self.session.cluster.shutdown()
+        print(f'Closing the writer for {self.epoch_id}')
+
+    def _flush_buffer(self):
+        insert_statements = []
+        for row_to_insert in self.rows_to_send:
+            insert_statements.append(f"INSERT INTO numbers (value, decorated_value, label) "
+                                     f"VALUES ('{row_to_insert.value}', '{row_to_insert.decorated_value}', '{row_to_insert.label}');")
+
+        insert_query = f"""
+        BEGIN BATCH
+            {"".join(insert_statements)}
+        APPLY BATCH;
+        """
+        self.session.execute(insert_query)
+        self.rows_to_send = []
+```
 </details>
 
 ## Setup instructions
@@ -74,4 +125,4 @@ cqlsh> SELECT * FROM wfc.numbers;
 
 
 # Well done! 
-⏭️ [start the next exercises](exercise5.md)
+⏭️ [start the next exercise](exercise5.md)
