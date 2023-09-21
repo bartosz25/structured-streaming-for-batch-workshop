@@ -18,16 +18,21 @@ Connection parameters for Apache Kafka data source:
 cd part02/docker
 docker-compose down --volumes; docker-compose up
 ```
+2. Create the namespace for the ScyllaDB exercise:
+```
+docker exec docker_scylla_1 cqlsh -f /data_to_load.txt
+```
+
 2. Open the Scala or Python part in the IDE of your choice.
 3. Implement the jobs.
 
 <details>
-	<summary>Hints</summary>
+<summary>Hints</summary>
 
-	### Data source definition
-	```
-	spark.readStream.format("kafka").option("..define your connection options here..")
-	```
+### Data source definition
+```
+spark.readStream.format("kafka").option("..define your connection options here..")
+```
 	
 	### Data decoration - SQL
 	```
@@ -108,7 +113,8 @@ echo '{"nr": "1", "label": "Number one"}
 echo '{"nr": "3", "label": "Number three"}
 {"nr": "4", "label": "Number four"}' > "$DATASET_DIR/3_4.json"
 ```
-2. Start the job.
+2. Start the data generator.
+3. Start the job.
 3. Add a new file to the Master Dataset:
 ```
 
@@ -116,7 +122,7 @@ echo '{"nr": "5", "label": "Number three"}
 {"nr": "6", "label": "Number four"}' > "$DATASET_DIR/5_6.json"
 ```
 
-4. Check the results of the job.
+4. Wait for the records number 5 and 6 to be joined and check the results of the job. You should see no matched rows because of the files index cache.
 5. Rewrite the existing files of the job:
 ```
 echo '{"nr": "1", "label": "ONE"}
@@ -125,6 +131,8 @@ echo '{"nr": "1", "label": "ONE"}
 echo '{"nr": "3", "label": "THREE"}
 {"nr": "4", "label": "FOUR"}' > "$DATASET_DIR/3_4.json"
 ```
+
+6. Wait for the joins for 1, 2, 3, or 4 happening. You should see the rows joined with the updated JSONs.
 
 *The refresh issue is present only for the raw data sources. Modern table file formats like Delta Lake don't have it.* TODO: explain why
 
@@ -198,6 +206,25 @@ Change the sink from the console to ScyllaDB. We assume that we cannot use the S
 	```
 	
 	```
+	
+	### ScyllaDB querying
+	```
+	docker exec -ti docker_scylla_1 cqlsh
+	
+	Connected to  at 192.168.144.2:9042.
+	[cqlsh 5.0.1 | Cassandra 3.0.8 | CQL spec 3.3.1 | Native protocol v4]
+	Use HELP for help.
+	cqlsh> SELECT * FROM wfc.numbers;
+
+	 value | decorated_value
+	-------+----------------------------
+	     4 | 2023-09-21 05:41:04.828414
+	     5 | 2023-09-21 05:41:04.828415
+	     1 | 2023-09-21 05:41:04.828411
+
+	(3 rows)
+
+	```
 </details>
 
 # Exercise 5: an Apache Kafka and raw files sinks instead
@@ -228,13 +255,21 @@ Replace the ScyllaDB sink by Apache Kafka and JSON sinks. Both should write the 
 	* defining 2 `writeStream...` on the data source won't work well because again, it'll involve reading the data twice
 	* moreover, 2 `writeStream`s bring the risk of reading different data since the data source is not synchronized; it
 	  breaks the requirement from the announcement
+	  
+	### Reading Kafka data
+	```
+	docker exec -ti docker_kafka_1 kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic numbers_enriched --from-beginning
+	```
 </details>
  
 # Exercise 6: fault-tolerance
 
 Go to the checkpoint location and analyze the content:
 ```
-TODO:commands
+cd /tmp/wfc/workshop/part02/checkpoint/
+
+less commits/*
+less 
 ```
 
 Questions:
