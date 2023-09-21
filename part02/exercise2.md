@@ -24,4 +24,4 @@ Several aspects here:
 </details>
 
 # Well done! 
-⏭️ [start the next exercises](/exercise3.md)
+⏭️ [start the next exercises](exercise3.md)

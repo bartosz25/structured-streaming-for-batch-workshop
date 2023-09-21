@@ -74,4 +74,4 @@ cqlsh> SELECT * FROM wfc.numbers;
 
 
 # Well done! 
-⏭️ [start the next exercises](/exercise5.md)
+⏭️ [start the next exercises](exercise5.md)

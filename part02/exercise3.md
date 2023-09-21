@@ -61,4 +61,4 @@ echo '{"nr": "3", "label": "THREE"}
 *The refresh issue is present only for the raw data sources. Modern table file formats like Delta Lake don't have it.*
 
 # Well done! 
-⏭️ [start the next exercises](/exercise4.md)
+⏭️ [start the next exercises](exercise4.md)

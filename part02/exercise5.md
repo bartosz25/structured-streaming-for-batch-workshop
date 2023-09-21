@@ -36,4 +36,4 @@ docker exec -ti docker_kafka_1 kafka-console-consumer.sh --bootstrap-server loca
 4. Check the results in the output directory
 
 # Well done! 
-⏭️ [start the next exercises](/exercise6.md)
+⏭️ [start the next exercises](exercise6.md)

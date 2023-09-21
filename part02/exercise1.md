@@ -67,4 +67,4 @@ Scala:
 7. Stop the SQL job and start the Scala implementation.
 
 # Well done! 
-⏭️ [start the next exercises](/exercise2.md)
+⏭️ [start the next exercises](exercise2.md)
