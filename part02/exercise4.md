@@ -53,6 +53,7 @@ class ScyllaDbWriter extends ForeachWriter[MappedEvent] {
 <details>
 <summary>Hints - Python ForeachWriter</summary>
 Example for Python:
+
 ```
 class ScyllaDbWriter:
 
