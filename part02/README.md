@@ -27,32 +27,37 @@ docker exec docker_scylla_1 cqlsh -f /data_to_load.txt
 3. Implement the jobs.
 
 <details>
-<summary>Hints</summary>
+<summary>Hints - data source definition</summary>
 
-### Data source definition
 ```
 spark.readStream.format("kafka").option("..define your connection options here..")
 ```
+</details>
 	
-	### Data decoration - SQL
-	```
-	CONCAT_WS(' ', 'Spark', 'SQL')
-	```
-	
-	### Data decoration - Python
-	```
-	TODO:
-	```
-	
-	### Data decoration - Scala
-	```
-	.map(..decoration logic here.)
-	```
-	
-	### Console sink
-	```
-	.writeStream.format("console").option("truncate", false).option("checkpointLocation", "....")
-	```
+<details>
+<summary>Hints - data decoration</summary>
+
+SQL:
+```
+CONCAT_WS(' ', 'Spark', 'SQL')
+```
+
+Python:
+```
+TODO:
+```
+
+Scala:
+```
+.map(..decoration logic here.)
+```
+</details>
+
+<details>
+<summary>Hints - data sink definition</summary>
+```
+.writeStream.format("console").option("truncate", false).option("checkpointLocation", "....")
+```
 </details>
 
 4. Run the data generator: (`DataGenerator` in Scala, `data_generator.py` in Python).
