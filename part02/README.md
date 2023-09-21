@@ -7,4 +7,4 @@ Requirements:
 
 If you get stuck, you can click on the "Hints" part and get some help.
 
-⏭️ If you're ready, [start the exercises](/exercise1.md).
+⏭️ If you're ready, [start the first exercise](exercise1.md).
