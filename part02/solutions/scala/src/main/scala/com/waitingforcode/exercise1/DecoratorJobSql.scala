@@ -19,7 +19,7 @@ object DecoratorJobSql {
 
     val mappedInput = inputStream.selectExpr(
       "value",
-      "CONCAT_WS('', current_timestamp, value) AS decorated_value"
+      "CONCAT_WS(' >>> ', current_timestamp, value) AS decorated_value"
     )
 
     val writeQuery = mappedInput.writeStream.format("console")

@@ -58,7 +58,7 @@ echo '{"nr": "3", "label": "THREE"}
 
 7. Wait for the joins for 1, 2, 3, or 4 happening. You should see the rows joined with the updated JSONs.
 
-*The refresh issue is present only for the raw data sources. Modern table file formats like Delta Lake don't have it.*
+*The refresh issue is present only for the raw data sources due to the scanned list cache. Modern table file formats like Delta Lake don't have it.*
 
 # Well done! 
 ⏭️ [start the next exercise](exercise4.md)

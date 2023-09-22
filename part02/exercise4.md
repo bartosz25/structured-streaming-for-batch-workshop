@@ -106,9 +106,13 @@ class ScyllaDbWriter:
 
 
 ## Setup instructions
-1. Implement the job.
-2. Start the job.
-3. Check the results in the ScyllaDB output table:
+1. Create the namespace for the ScyllaDB exercise:
+```
+docker exec docker_scylla_1 cqlsh -f /data_to_load.txt
+```
+2. Implement the job.
+3. Start the job.
+4. Check the results in the ScyllaDB output table:
 ```
 docker exec -ti docker_scylla_1 cqlsh
 
@@ -117,11 +121,15 @@ Connected to  at 192.168.144.2:9042.
 Use HELP for help.
 cqlsh> SELECT * FROM wfc.numbers;
 
- value | decorated_value
--------+----------------------------
-     4 | 2023-09-21 05:41:04.828414
-     5 | 2023-09-21 05:41:04.828415
-     1 | 2023-09-21 05:41:04.828411
+ value | decorated_value                 | label
+-------+---------------------------------+-------
+     4 | 2023-09-22 11:28:30.07724 >>> 4 |  FOUR
+     3 | 2023-09-22 11:28:30.07724 >>> 3 | THREE
+     5 | 2023-09-22 11:28:30.07724 >>> 5 |  null
+     0 | 2023-09-22 11:27:35.29562 >>> 0 |  null
+     2 | 2023-09-22 11:28:30.07724 >>> 2 |   TWO
+     1 | 2023-09-22 11:27:35.29562 >>> 1 |   ONE
+
 
 (3 rows)
 ```

@@ -21,11 +21,18 @@ object DecoratorJobForScyllaDb {
 
     val mappedInput = inputStream.selectExpr(
       "value",
-      "CONCAT_WS('', current_timestamp, value) AS decorated_value",
-      "label"
+      "CONCAT_WS(' >>> ', current_timestamp, value) AS decorated_value"
+    )
+
+    val masterDataset = sparkSession.read
+      .schema("nr STRING, label STRING")
+      .json("/tmp/wfc/workshop/master")
+
+    val enrichedDataset = mappedInput.join(
+      masterDataset, masterDataset("nr") === mappedInput("value"), "left"
     ).as[MappedEventWithLabel]
 
-    val writeQuery = mappedInput.writeStream
+    val writeQuery = enrichedDataset.writeStream
       .trigger(Trigger.ProcessingTime("30 seconds"))
       .option("checkpointLocation", checkpointLocation)
       .foreach(new ScyllaDbWriter())

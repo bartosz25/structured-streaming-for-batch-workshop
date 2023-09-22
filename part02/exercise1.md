@@ -6,7 +6,7 @@ Implement 2 pipelines, one with *SQL API* and another with *programmatic API (Py
 
 The job should return 2 columns: initial one (`value`) and the one resulting from the concatenation operation.
 
-Connection parameters for Apache Kafka data source:
+Connection parameters for the Apache Kafka data source:
 
 * broker: localhost:9094
 * topic: numbers
@@ -18,13 +18,9 @@ Connection parameters for Apache Kafka data source:
 cd part02/docker
 docker-compose down --volumes; docker-compose up
 ```
-2. Create the namespace for the ScyllaDB exercise:
-```
-docker exec docker_scylla_1 cqlsh -f /data_to_load.txt
-```
 
-3. Open the Scala or Python part in the IDE of your choice.
-4. Implement the jobs.
+2. Open the Scala or Python directory in the IDE of your choice.
+3. Implement the jobs. If you want, you can start with the available templates, `NumbersProcessing` for Scala or `numbers_processing.py` for Python
 
 <details>
 <summary>Hints - data source definition</summary>
@@ -67,8 +63,29 @@ Scala:
 <details>
 <summary>Hints - data sink definition</summary>
 ```
+.writeStream.format("console").option("truncate", false)
+```
+</details>
+
+<details>
+<summary>Hints - checkpoint location</summary>
+```
 .writeStream.format("console").option("truncate", false).option("checkpointLocation", "....")
 ```
+
+The checkpoint location is not mandatory for the exercises but we're going to use it in the last exercise, so to simplify the code evolution, 
+it's more convenient to set it right now.
+</details>
+
+<details>
+<summary>Hints - running the streaming query</summary>
+```
+val writeQuery = ....writeStream.format("console").option("truncate", false).option("checkpointLocation", "....")
+
+writeQuery.start().awaitTermination()
+```
+
+If you don't call `start()`, your streaming query won't start. If you do but forget the `awaitTermination()`, the query will start and stop soon after.
 </details>
 
 5. Run the data generator: (`DataGenerator` in Scala, `data_generator.py` in Python).

@@ -23,11 +23,21 @@ object DecoratorJobWithDoubleSink {
       "CONCAT_WS(' >>> ', current_timestamp, value) AS decorated_value"
     )
 
+    val masterDataset = sparkSession.read
+      .schema("nr STRING, label STRING")
+      .json("/tmp/wfc/workshop/master")
+
+    val enrichedDataset = mappedInput.join(
+      masterDataset, masterDataset("nr") === mappedInput("value"), "left"
+    )
+
+
     def writeDatasetToKafkaAndJson(dataset: DataFrame, batchNumber: Long): Unit = {
-      // Cache is very important! TODO: show on the UI what happens if it's not there
+      // Cache is very important! Otherwise the dataset gets read twice
       val datasetToWrite = dataset.cache()
       datasetToWrite.write.mode(SaveMode.Overwrite).json(s"/tmp/wfc/workshop/part02/exercise4/${batchNumber}")
-      // Kafka is not only available for the streaming API!
+
+      // Kafka is not only available for the streaming API :)
       datasetToWrite.selectExpr("decorated_value AS value").write.options(Map(
         "kafka.bootstrap.servers" -> "localhost:9094",
         "topic" -> EnrichedDataTopicName
@@ -36,7 +46,7 @@ object DecoratorJobWithDoubleSink {
       ()
     }
 
-    val writeQuery = mappedInput.writeStream
+    val writeQuery = enrichedDataset.writeStream
       .trigger(Trigger.ProcessingTime("30 seconds"))
       .option("checkpointLocation", checkpointLocation)
       .foreachBatch(writeDatasetToKafkaAndJson _)
