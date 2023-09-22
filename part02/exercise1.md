@@ -40,19 +40,18 @@ CONCAT_WS(' ', 'Spark', 'SQL')
 
 Python:
 ```
-.foreachBatch(decorate_numbers)
-```
-with 
-```
-def decorate_numbers(numbers_dataframe: DataFrame, batch_number: int):
-    def decorate_number_rows(rows_to_decorate: Iterable[Row]):
-        for row in rows_to_decorate:
-            yield Row(value=row.value, decorated_value=f'{row.current_timestamp} >>> {row.value}')
+def concat_values_with_now(rows):
+    for row in rows:
+        row["decorated_value"] = row["current_timestamp"].astype(str) + " >>> " + row["value"]
+        yield row
 
-    (numbers_dataframe.rdd.mapPartitions(decorate_number_rows).toDF(['value', 'decorated_value'])
-     .show(truncate=False))
+
+mapped_numbers = numbers.mapInPandas(concat_values_with_now, "value STRING, decorated_value STRING")
 ```
 You just discovered the hard way that there are some differences between PySpark and Scala API for Structured Streaming 💪
+PySpark relies a lot on the `*inPandas` operations which work on a batch of records instead of on one record at once. 
+The reason for that is due to the serialization/deserialization loops that are being constly when Python VM exchanges the data with the JVM.
+Those `inPandas` operations reduce the overhead drastically. 
 
 Scala:
 ```
