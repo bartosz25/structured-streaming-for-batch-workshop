@@ -3,7 +3,7 @@ from pyspark.sql import SparkSession, DataFrame
 from config import kafka_input_topic, get_checkpoint_location, kafka_input_enriched_topic
 
 spark = SparkSession.builder.master("local[*]") \
-    .config('spark.jars.packages', 'org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1') \
+    .config('spark.jars.packages', 'org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0') \
     .getOrCreate()
 
 input_data_stream = spark.readStream \

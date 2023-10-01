@@ -4,7 +4,7 @@ from config import kafka_input_topic, get_checkpoint_location
 from scylladb_writer import ScyllaDbWriter
 
 spark = SparkSession.builder.master("local[*]") \
-    .config('spark.jars.packages', 'org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1') \
+    .config('spark.jars.packages', 'org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0') \
     .getOrCreate()
 
 input_data_stream = spark.readStream \

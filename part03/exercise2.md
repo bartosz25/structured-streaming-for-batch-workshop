@@ -48,7 +48,19 @@ query = input_data.selectExpr("CAST(value AS STRING)") \
 
 Scala Spark:
 ```
+val eventSchema = StructType(Seq(
+  StructField("event_id", StringType),
+  StructField("event_time", TimestampType)
+))
 
+
+val query = inputDataStream.selectExpr("CAST(value AS STRING)")
+  .select(functions.from_json($"value", eventSchema).alias("value_struct"), $"value")
+  .select("value_struct.event_time", "value_struct.event_id", "value")
+  .withWatermark("event_time", "10 minutes")
+  .dropDuplicates(Seq("event_id", "event_time"))
+  // keep only the value which is required for the sink !
+  .drop("event_time", "event_id")
 ```
 </details>
 
