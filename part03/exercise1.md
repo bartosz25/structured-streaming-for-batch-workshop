@@ -57,3 +57,4 @@ val windowCount = inputDataStream.selectExpr("CAST(value AS STRING)")
 
 # Well done! 
 ⏭️ [start the next exercise](exercise2.md)
+

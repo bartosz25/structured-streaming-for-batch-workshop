@@ -75,4 +75,6 @@ val query = inputDataStream.selectExpr("CAST(value AS STRING)")
 docker exec -ti docker_kafka_1 kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic visits_deduped --from-beginning
 ```
 
-# 🥳 Congrats! You just completed some basic stateful processing tasks. You're ready now to go further 💪
+# Well done! 
+⏭️ [start the next exercise](exercise3.md)
+
