@@ -61,6 +61,7 @@ Scala:
 
 <details>
 <summary>Hints - data sink definition</summary>
+
 ```
 .writeStream.format("console").option("truncate", false)
 ```
@@ -68,6 +69,7 @@ Scala:
 
 <details>
 <summary>Hints - checkpoint location</summary>
+
 ```
 .writeStream.format("console").option("truncate", false).option("checkpointLocation", "....")
 ```
@@ -78,6 +80,7 @@ it's more convenient to set it right now.
 
 <details>
 <summary>Hints - running the streaming query</summary>
+
 ```
 val writeQuery = ....writeStream.format("console").option("truncate", false).option("checkpointLocation", "....")
 
