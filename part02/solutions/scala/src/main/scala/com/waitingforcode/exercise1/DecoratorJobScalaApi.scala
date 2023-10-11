@@ -14,7 +14,7 @@ object DecoratorJobScalaApi {
 
     val inputStream = sparkSession.readStream.format("kafka")
       .options(Map(
-        "kafka.bootstrap.servers" -> "localhost:29092",
+        "kafka.bootstrap.servers" -> "localhost:9094",
         "subscribe" -> InputDataTopicName,
         "startingOffsets" -> "earliest"
       )).load()
