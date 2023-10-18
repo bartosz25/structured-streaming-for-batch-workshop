@@ -1,8 +1,4 @@
-import datetime
-from typing import Iterable
-
-from pyspark import Row
-from pyspark.sql import SparkSession, functions, DataFrame
+from pyspark.sql import SparkSession
 
 from config import kafka_input_topic, get_checkpoint_location
 
@@ -26,7 +22,7 @@ def concat_values_with_now(rows):
         yield row
 
 
-mapped_numbers = numbers.mapInPandas(concat_values_with_now, "value STRING, decorated_value STRING")
+mapped_numbers = numbers.mapInPandas(concat_values_with_now, "value STRING, decorated_value STRING, current_timestamp TIMESTAMP")
 
 write_data_stream = (mapped_numbers.writeStream.format("console").option("truncate", False)
                      .option("checkpointLocation", get_checkpoint_location())

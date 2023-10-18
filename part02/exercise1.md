@@ -46,7 +46,7 @@ def concat_values_with_now(rows):
         yield row
 
 
-mapped_numbers = numbers.mapInPandas(concat_values_with_now, "value STRING, decorated_value STRING")
+mapped_numbers = numbers.mapInPandas(concat_values_with_now, "value STRING, decorated_value STRING, current_timestamp TIMESTAMP")
 ```
 You just discovered the hard way that there are some differences between PySpark and Scala API for Structured Streaming 💪
 PySpark relies a lot on the `*inPandas` operations which work on a batch of records instead of on one record at once. 

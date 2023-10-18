@@ -8,9 +8,9 @@ from typing import Dict
 
 from pyspark.sql import SparkSession
 
-from config import kafka_input_topic
+from config import kafka_input_topic, kafka_deduped_topic
 
-for topic in [kafka_input_topic(), kafka_input_topic()]:
+for topic in [kafka_input_topic(), kafka_deduped_topic()]:
     print('>>> Recreating topics...')
     os.system(
         f'docker exec docker_kafka_1 kafka-topics.sh --bootstrap-server localhost:9092 --topic {topic} --delete')
