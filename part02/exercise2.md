@@ -1,6 +1,6 @@
 # Exercise 2: Spark UI
 
-Keep the previous pipeline running. Open the Spark UI at [http://localhost:4040](http://localhost:4040).
+Keep the previous pipeline running. Open the Spark UI at [http://localhost:4040](http://localhost:4040) or [http://localhost:4041](http://localhost:4041) if you have the data generation still running.
 
 1. Where to find the information about the batch duration and data processing rate?
 2. Stop the job and modify the trigger to `.trigger(Trigger.ProcessingTime("1 minute"))` (Scala) or `.trigger(processingTime='1 minute')` (Python)
